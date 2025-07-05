@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Marble Showroom</title>
+  <style>
+    html, body { margin: 0; overflow: hidden; height: 100%; }
+    canvas { display: block; }
+    #controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.95);
+      padding: 10px;
+      border-radius: 8px;
+      z-index: 10;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label for="marbleSelect">Choose Marble Type:</label>
+    <select id="marbleSelect">
+      <option value="white">White Marble</option>
+      <option value="black">Black Marble</option>
+      <option value="green">Green Marble</option>
+    </select>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(6, 6, 6);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // Light
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 10, 5);
+    scene.add(dirLight);
+
+    // Textures
+    const loader = new THREE.TextureLoader();
+    const textures = {
+      white: loader.load("https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80"),
+      black: loader.load("https://images.unsplash.com/photo-1601182929467-d5a98251c5ed?auto=format&fit=crop&w=800&q=80"),
+      green: loader.load("https://images.unsplash.com/photo-1598300051454-d0601783fb4c?auto=format&fit=crop&w=800&q=80")
+    };
+
+    const slabMaterial = new THREE.MeshStandardMaterial({ map: textures.white, side: THREE.DoubleSide });
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), slabMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    // Walls
+    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xdddddd });
+    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 5), wallMaterial);
+    backWall.position.set(0, 2.5, -5);
+    scene.add(backWall);
+
+    const sideWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 5), wallMaterial);
+    sideWall.rotation.y = Math.PI / 2;
+    sideWall.position.set(-5, 2.5, 0);
+    scene.add(sideWall);
+
+    // Table
+    const tableMat = new THREE.MeshStandardMaterial({ map: textures.white });
+    const table = new THREE.Mesh(new THREE.BoxGeometry(2, 0.1, 1), tableMat);
+    table.position.set(0, 0.55, 0);
+    scene.add(table);
+
+    // Table
